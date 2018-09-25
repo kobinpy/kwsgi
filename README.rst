@@ -12,7 +12,7 @@ Usage is like this:
 
 .. code-block:: console
 
-   $ kwsgi hello_app.py application --reload
+   $ kwsgi hello.py app --reload
 
 Options are below:
 
@@ -21,8 +21,7 @@ Options are below:
    $ kwsgi --help
    Usage: kwsgi [OPTIONS] FILEPATH WSGIAPP
 
-     Run WSIG server. Usage:     $ kwsgi hello.py app -h 0.0.0.0 -p 5000
-     --reload
+     Example: kwsgi hello.py app -p 5000 --reload
 
    Options:
      -h, --host TEXT             The interface to bind to.

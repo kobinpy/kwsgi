@@ -138,9 +138,7 @@ def run_live_reloading_server(interval, app, host, port):
               help='Validating your WSGI application complying with PEP3333 compliance.')
 def cli(filepath, wsgiapp, host, port, reload, interval, validate):
     """
-    Run WSIG server.
-    Usage:
-        $ kwsgi hello.py app -h 0.0.0.0 -p 5000 --reload
+    Example: kwsgi hello.py app -p 5000 --reload
     """
     insert_import_path_to_sys_modules(filepath)
     module = SourceFileLoader('module', filepath).load_module()
