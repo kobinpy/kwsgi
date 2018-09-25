@@ -124,17 +124,17 @@ def run_live_reloading_server(interval, app, host, port):
 
 
 @click.command()
-@click.argument('filepath', nargs=1, envvar='WSGICLI_FILE', type=click.Path(exists=True))
-@click.argument('wsgiapp', nargs=1, envvar='WSGICLI_WSGI_APP')
-@click.option('--host', '-h', type=click.STRING, default='127.0.0.1', envvar='WSGICLI_HOST',
+@click.argument('filepath', nargs=1, envvar='KWSGI_FILE', type=click.Path(exists=True))
+@click.argument('wsgiapp', nargs=1, envvar='KWSGI_WSGI_APP')
+@click.option('--host', '-h', type=click.STRING, default='127.0.0.1', envvar='KWSGI_HOST',
               help='The interface to bind to.')
-@click.option('--port', '-p', type=click.INT, default=8000, envvar='WSGICLI_PORT',
+@click.option('--port', '-p', type=click.INT, default=8000, envvar='KWSGI_PORT',
               help='The port to bind to.')
-@click.option('--reload/--no-reload', default=None, envvar='WSGICLI_RELOAD',
+@click.option('--reload/--no-reload', default=None, envvar='KWSGI_RELOAD',
               help='Enable live reloading')
-@click.option('--interval', type=click.INT, default=1, envvar='WSGICLI_INTERVAL',
+@click.option('--interval', type=click.INT, default=1, envvar='KWSGI_INTERVAL',
               help='Interval time to check file changed for reloading')
-@click.option('--validate/--no-validate', default=False, envvar='WSGICLI_VALIDATE',
+@click.option('--validate/--no-validate', default=False, envvar='KWSGI_VALIDATE',
               help='Validating your WSGI application complying with PEP3333 compliance.')
 def cli(filepath, wsgiapp, host, port, reload, interval, validate):
     """
