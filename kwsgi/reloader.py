@@ -3,6 +3,8 @@ import sys
 import threading
 import time
 import _thread
+import subprocess
+import tempfile
 
 
 # For reloading server when detected python files changes.
@@ -10,10 +12,10 @@ EXIT_STATUS_RELOAD = 3
 
 
 class FileCheckerThread(threading.Thread):
-    # This class is copied and pasted from following source code of Bottle.
-    #   https://github.com/bottlepy/bottle/blob/master/bottle.py#L3647-L3686
     """ Interrupt main-thread as soon as a changed module file is detected,
         the lockfile gets deleted or gets too old. """
+    # This class is copied and pasted from following source code of Bottle (MIT License).
+    # https://github.com/bottlepy/bottle/blob/5aeb2562de4c8133dcba8a8cf49b6ec90cd15d1f/bottle.py#L3732-L3771
 
     def __init__(self, lockfile, interval):
         threading.Thread.__init__(self)
@@ -62,8 +64,6 @@ class AutoReloadServer:
 
     def run_forever(self, interval):
         if not os.environ.get('KWSGI_CHILD'):
-            import subprocess
-            import tempfile
             lockfile = None
             try:
                 fd, lockfile = tempfile.mkstemp(prefix='kwsgi.', suffix='.lock')
@@ -101,4 +101,4 @@ class AutoReloadServer:
             raise
         except:
             time.sleep(interval)
-            sys.exit(3)
+            sys.exit(EXIT_STATUS_RELOAD)
