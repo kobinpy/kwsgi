@@ -24,14 +24,16 @@ Options are below:
      Example: kwsgi hello.py app -p 5000 --reload
 
    Options:
-     -h, --host TEXT             The interface to bind to.
-     -p, --port INTEGER          The port to bind to.
-     --reload / --no-reload      Enable live reloading
-     --interval INTEGER          Interval time to check file changed for
-                                 reloading
-     --validate / --no-validate  Validating your WSGI application complying with
-                                 PEP3333 compliance.
-     --help                      Show this message and exit.
+     -h, --host TEXT               The interface to bind to.
+     -p, --port INTEGER            The port to bind to.
+     --reload / --no-reload        Enable live reloading
+     --daemonize / --no-daemonize  Detaches the server from the controlling
+                                   terminal and enters the background.
+     --interval INTEGER            Interval time to check file changed for
+                                   reloading
+     --validate / --no-validate    Validating your WSGI application complying with
+                                   PEP3333 compliance.
+     --help                        Show this message and exit.
 
 
 And you can integrate with kwsgi from python script:
