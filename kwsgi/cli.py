@@ -6,6 +6,7 @@ import click
 
 from .reloader import AutoReloadServer
 from .server import WSGIServer
+from .daemonize import daemonize as daemonize_func
 
 
 def insert_import_path_to_sys_modules(import_path):
@@ -41,13 +42,15 @@ def run_live_reloading_server(interval, app, host, port):
               help='The interface to bind to.')
 @click.option('--port', '-p', type=click.INT, default=8000, envvar='KWSGI_PORT',
               help='The port to bind to.')
-@click.option('--reload/--no-reload', default=None, envvar='KWSGI_RELOAD',
+@click.option('--reload/--no-reload', default=False, envvar='KWSGI_RELOAD',
               help='Enable live reloading')
+@click.option('--daemonize/--no-daemonize', default=False, envvar='KWSGI_DAEMONIZE',
+              help='Detaches the server from the controlling terminal and enters the background.')
 @click.option('--interval', type=click.INT, default=1, envvar='KWSGI_INTERVAL',
               help='Interval time to check file changed for reloading')
 @click.option('--validate/--no-validate', default=False, envvar='KWSGI_VALIDATE',
               help='Validating your WSGI application complying with PEP3333 compliance.')
-def cli(filepath, wsgiapp, host, port, reload, interval, validate):
+def cli(filepath, wsgiapp, host, port, reload, daemonize, interval, validate):
     """
     Example: kwsgi hello.py app -p 5000 --reload
     """
@@ -58,6 +61,16 @@ def cli(filepath, wsgiapp, host, port, reload, interval, validate):
     if validate:
         from wsgiref.validate import validator
         app = validator(app)
+
+    if reload and daemonize:
+        click.echo("You couldn't use the both of --reload and --daemonize.")
+        click.echo("Because when enabling daemonize option, called chdir system call"
+                   " to continue to run application if the directory is removed.")
+        sys.exit(1)
+
+    if daemonize:
+        daemonize_func()
+        run_server(app=app, host=host, port=port)
 
     if reload:
         run_live_reloading_server(interval, app=app, host=host, port=port)
