@@ -34,7 +34,7 @@ setup(
     long_description=README,
     classifiers=__classifiers__,
     packages=find_packages(exclude=['test*']),
-    install_requires=[],
+    install_requires=['click'],
     keywords='web server wsgi http',
     license=__license__,
     include_package_data=True,
