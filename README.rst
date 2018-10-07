@@ -2,8 +2,7 @@
 kwsgi
 =====
 
-Yet another WSGI server implementation.
-
+**DON'T USE IN PRODUCTION**: Yet another WSGI server implementation.
 
 Usage
 -----
