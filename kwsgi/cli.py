@@ -5,7 +5,7 @@ from importlib.machinery import SourceFileLoader
 import click
 
 from .reloader import AutoReloadServer
-from .server import WSGIServer
+from .server import serve_forever
 from .daemonize import daemonize as daemonize_func
 
 
@@ -21,18 +21,6 @@ def insert_import_path_to_sys_modules(import_path):
         sys.path.insert(0, abspath)
     else:
         sys.path.insert(0, os.path.dirname(abspath))
-
-
-def run_server(app, host, port):
-    click.echo('Start: {host}:{port}'.format(host=host, port=port))
-    server = WSGIServer(app, host=host, port=port)
-    server.run_forever()
-
-
-def run_live_reloading_server(interval, app, host, port):
-    click.echo('Start: {host}:{port}'.format(host=host, port=port))
-    server = AutoReloadServer(run_server, kwargs={'app': app, 'host': host, 'port': port})
-    server.run_forever(interval)
 
 
 @click.command()
@@ -70,9 +58,11 @@ def cli(filepath, wsgiapp, host, port, reload, daemonize, interval, validate):
 
     if daemonize:
         daemonize_func()
-        run_server(app=app, host=host, port=port)
+        serve_forever(app=app, host=host, port=port)
 
     if reload:
-        run_live_reloading_server(interval, app=app, host=host, port=port)
+        click.echo('Start: {host}:{port}'.format(host=host, port=port))
+        server = AutoReloadServer(serve_forever, kwargs={'app': app, 'host': host, 'port': port})
+        server.run_forever(interval)
     else:
-        run_server(app=app, host=host, port=port)
+        serve_forever(app=app, host=host, port=port)

@@ -1,4 +1,4 @@
-from kwsgi import WSGIServer
+from kwsgi import serve_forever
 
 
 def application(env, start_response):
@@ -7,5 +7,4 @@ def application(env, start_response):
 
 
 if __name__ == '__main__':
-    server = WSGIServer(application)
-    server.run_forever()
+    serve_forever(application)
