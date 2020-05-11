@@ -4,7 +4,7 @@ from importlib.machinery import SourceFileLoader
 
 import click
 
-from .reloader import AutoReloadServer
+from .reloader import serve_forever as reload_forever
 from .server import serve_forever
 from .daemonize import daemonize as daemonize_func
 
@@ -62,7 +62,7 @@ def cli(filepath, wsgiapp, host, port, reload, daemonize, interval, validate):
 
     if reload:
         click.echo('Start: {host}:{port}'.format(host=host, port=port))
-        server = AutoReloadServer(serve_forever, kwargs={'app': app, 'host': host, 'port': port})
-        server.run_forever(interval)
+        reload_forever(serve_forever, interval,
+                       kwargs={'app': app, 'host': host, 'port': port})
     else:
         serve_forever(app=app, host=host, port=port)

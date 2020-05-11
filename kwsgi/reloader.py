@@ -56,49 +56,43 @@ class FileCheckerThread(threading.Thread):
         return exc_type is not None and issubclass(exc_type, KeyboardInterrupt)
 
 
-class AutoReloadServer:
-    def __init__(self, func, args=None, kwargs=None):
-        self.func = func
-        self.func_args = args
-        self.func_kwargs = kwargs
-
-    def run_forever(self, interval):
-        if not os.environ.get('KWSGI_CHILD'):
-            lockfile = None
-            try:
-                fd, lockfile = tempfile.mkstemp(prefix='kwsgi.', suffix='.lock')
-                os.close(fd)  # We only need this file to exist. We never write to it
-                while os.path.exists(lockfile):
-                    args = [sys.executable] + sys.argv
-                    environ = os.environ.copy()
-                    environ['KWSGI_CHILD'] = 'true'
-                    environ['KWSGI_LOCKFILE'] = lockfile
-                    p = subprocess.Popen(args, env=environ)
-                    while p.poll() is None:  # Busy wait...
-                        os.utime(lockfile, None)  # Alive! If lockfile is unlinked, it raises FileNotFoundError.
-                        time.sleep(interval)
-                    if p.poll() != EXIT_STATUS_RELOAD:
-                        if os.path.exists(lockfile):
-                            os.unlink(lockfile)
-                            sys.exit(p.poll())
-            except KeyboardInterrupt:
-                pass
-            finally:
-                if os.path.exists(lockfile):
-                    os.unlink(lockfile)
-            return
-
+def serve_forever(func, interval, args=None, kwargs=None):
+    if not os.environ.get('KWSGI_CHILD'):
+        lockfile = None
         try:
-            lockfile = os.environ.get('KWSGI_LOCKFILE')
-            bgcheck = FileCheckerThread(lockfile, interval)
-            with bgcheck:
-                self.func(*self.func_args, **self.func_kwargs)
-            if bgcheck.status == 'reload':
-                sys.exit(EXIT_STATUS_RELOAD)
+            fd, lockfile = tempfile.mkstemp(prefix='kwsgi.', suffix='.lock')
+            os.close(fd)  # We only need this file to exist. We never write to it
+            while os.path.exists(lockfile):
+                args = [sys.executable] + sys.argv
+                environ = os.environ.copy()
+                environ['KWSGI_CHILD'] = 'true'
+                environ['KWSGI_LOCKFILE'] = lockfile
+                p = subprocess.Popen(args, env=environ)
+                while p.poll() is None:  # Busy wait...
+                    os.utime(lockfile, None)  # Alive! If lockfile is unlinked, it raises FileNotFoundError.
+                    time.sleep(interval)
+                if p.poll() != EXIT_STATUS_RELOAD:
+                    if os.path.exists(lockfile):
+                        os.unlink(lockfile)
+                        sys.exit(p.poll())
         except KeyboardInterrupt:
             pass
-        except (SystemExit, MemoryError):
-            raise
-        except:
-            time.sleep(interval)
+        finally:
+            if os.path.exists(lockfile):
+                os.unlink(lockfile)
+        return
+
+    try:
+        lockfile = os.environ.get('KWSGI_LOCKFILE')
+        bgcheck = FileCheckerThread(lockfile, interval)
+        with bgcheck:
+            func(*args, **kwargs)
+        if bgcheck.status == 'reload':
             sys.exit(EXIT_STATUS_RELOAD)
+    except KeyboardInterrupt:
+        pass
+    except (SystemExit, MemoryError):
+        raise
+    except:
+        time.sleep(interval)
+        sys.exit(EXIT_STATUS_RELOAD)
